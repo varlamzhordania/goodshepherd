@@ -6,7 +6,6 @@ import Peer from "@/components/Peer.jsx";
 import {getUser} from "@/lib/utils.js";
 import Janus from "janus-gateway";
 import adapter from "webrtc-adapter"
-import {AspectRatio} from "@/components/ui/aspect-ratio.jsx";
 
 
 let mapPeers = {}
@@ -15,7 +14,7 @@ const Room = () => {
     window['adapter'] = adapter
 
     const [constraints, setConstraints] = useState({video: true, audio: true});
-    const [mapComponents, setMapComponents] = useState([])
+    const [, forceUpdate] = useState();
     const localVideo = useRef();
     const btnAudio = useRef();
     const btnVideo = useRef();
@@ -33,7 +32,12 @@ const Room = () => {
     let myStream = null;
     let remoteFeed = null;
     let subStreams = {};
+    let audioMuted = true;
+    let videoMuted = true;
 
+    const rerender = () => {
+        forceUpdate(Math.random()); // Update state with a random value
+    };
     const checkExistRoom = () => {
         videoroom.send({
             message: {
@@ -44,10 +48,8 @@ const Room = () => {
                 const roomExists = response.exists;
 
                 if (roomExists) {
-                    console.log("Room exists");
                     joinRoom()
                 } else {
-                    console.log("Room does not exist");
                     createRoom()
                 }
             },
@@ -68,7 +70,6 @@ const Room = () => {
                 bitrate: bitrate,
             },
             success: function () {
-                console.log("joined to room")
             },
             error: function (error) {
                 console.error("Error joining room ", error);
@@ -89,7 +90,7 @@ const Room = () => {
                 permanent: false,
 
             },
-            success: function (response) {
+            success: function () {
                 joinRoom()
             },
             error: function (error) {
@@ -128,35 +129,98 @@ const Room = () => {
             });
     }
 
+    const handleToggleMute = () => {
+        if (audioMuted) {
+            console.log("to mute")
+            videoroom.createOffer(
+                {
+                    iceRestart: true,
+                    tracks: [
+                        {
+                            "type": "audio",
+                            "capture": false,
+                            "add": false,
+                        },
+                    ],
+                    success: function (jsep) {
+                        const publish = {"request": "configure", "audio": false};
+                        videoroom.send({"message": publish, "jsep": jsep});
+                    },
+                    error: function (error) {
+                        Janus.error("WebRTC error:", error);
+                    }
+                });
+        } else {
+            console.log("to unmute")
+            videoroom.createOffer(
+                {
+                    iceRestart: true,
+                    tracks: [
+                        {
+                            "type": "audio",
+                            "capture": true,
+                            "add": true,
+                        },
+                    ],
+                    success: function (jsep) {
+                        const publish = {"request": "configure", "audio": true};
+                        videoroom.send({"message": publish, "jsep": jsep});
+                    },
+                    error: function (error) {
+                        Janus.error("WebRTC error:", error);
+                    }
+                });
 
-    const unPublishOwnFeed = () => {
-        // videoroom.createOffer(
-        //     {
-        //         iceRestart: true,
-        //         tracks: [
-        //             {
-        //                 "type": "audio",
-        //                 "capture": true,
-        //                 "add": true,
-        //             },
-        //             {
-        //                 "type": "video",
-        //                 "capture": false,
-        //                 "add": true,
-        //             }
-        //         ],
-        //         success: function (jsep) {
-        //             const publish = {"request": "configure", "audio": useAudio, "video": true};
-        //             videoroom.send({"message": publish, "jsep": jsep});
-        //         },
-        //         error: function (error) {
-        //             Janus.error("WebRTC error:", error);
-        //             if (useAudio) {
-        //                 publishOwnFeed(false);
-        //             }
-        //         }
-        //     });
+        }
+        audioMuted = !audioMuted
+        setConstraints(prevState => ({...prevState, audio: !prevState.audio}))
+    }
 
+    const handleToggleVideo = () => {
+        if (videoMuted) {
+            console.log("to mute Video")
+            videoroom.createOffer(
+                {
+                    iceRestart: true,
+                    tracks: [
+                        {
+                            "type": "video",
+                            "capture": false,
+                            "add": false,
+                        },
+                    ],
+                    success: function (jsep) {
+                        const publish = {"request": "configure", "video": false};
+                        videoroom.send({"message": publish, "jsep": jsep});
+                    },
+                    error: function (error) {
+                        Janus.error("WebRTC error:", error);
+                    }
+                });
+        } else {
+            console.log("to unmute")
+            videoroom.createOffer(
+                {
+                    iceRestart: true,
+                    tracks: [
+                        {
+                            "type": "video",
+                            "capture": true,
+                            "add": true,
+                        },
+                    ],
+                    success: function (jsep) {
+                        const publish = {"request": "configure", "video": true};
+                        videoroom.send({"message": publish, "jsep": jsep});
+                    },
+                    error: function (error) {
+                        Janus.error("WebRTC error:", error);
+                    }
+                });
+
+        }
+        videoMuted = !videoMuted
+        setConstraints(prevState => ({...prevState, video: !prevState.video}))
     }
     const checkCompatible = (stream) => {
         if (stream.type === "video" && Janus.webRTCAdapter.browserDetails.browser === "safari" &&
@@ -189,7 +253,6 @@ const Room = () => {
     const handleJoin = (streamData) => {
         let body;
 
-        console.log("before", subscribeStarted)
         if (subscribeStarted === true) {
             body = {
                 request: "subscribe",
@@ -212,7 +275,6 @@ const Room = () => {
 
     const handlePublishers = (data) => {
 
-
         data.forEach((item) => {
             if (item.id !== userData.user.id) {
                 // Ignore self
@@ -228,50 +290,33 @@ const Room = () => {
                 );
                 mapPeers[item.id] = [item, component];
 
-                // Check if the publisher is already in mapComponents
-                const existingComponentIndex = mapComponents.findIndex(x => x.id === item.id);
-                if (existingComponentIndex === -1) {
-                    // Publisher is not in mapComponents, add it
-                    setMapComponents(prevState => [
-                        ...prevState,
-                        {
-                            id: item.id,
-                            display: item.display,
-                            data: item,
-                            component: component
-                        }
-                    ]);
-                } else {
-                    // Publisher is already in mapComponents, update the component
-                    setMapComponents(prevState => {
-                        const updatedComponents = [...prevState];
-                        updatedComponents[existingComponentIndex].component = component;
-                        return updatedComponents;
-                    });
-                }
-
-                handleJoin(readyStream(item.id, item.streams))
-                subscribeStarted = true
-
-
+                handleJoin(readyStream(item.id, item.streams));
+                subscribeStarted = true;
             }
         });
+
+        rerender()
+
     };
+
+
     const handlePublisherLeave = (id) => {
-        // Update state to remove the component associated with the leaving publisher
-        setMapComponents(prevComponents => {
-            return prevComponents.filter(component => component.id !== id);
-        });
+        // setMapComponents(prevComponents => {
+        //     return prevComponents.filter(component => component.id !== id);
+        // });
         delete mapPeers[id]
+        rerender()
     }
     const handleNewPublishers = (data) => {
         handlePublishers(data)
-        console.log("got new publishers", data)
     }
     const handleEventJoin = (msg) => {
         myId = msg.id
         privateID = msg.private_id
         publishOwnFeed(true)
+
+        btnAudio.current.addEventListener("click", handleToggleMute)
+        btnVideo.current.addEventListener("click", handleToggleVideo)
 
         if (msg.publishers) {
             publishers = msg.publishers
@@ -290,15 +335,6 @@ const Room = () => {
         }
 
 
-    }
-
-    const handleToggleMute = () => {
-        let muted = videoroom?.isAudioMuted();
-        console.log((muted ? "Unmuting" : "Muting") + " local stream...");
-        if (muted)
-            videoroom?.unmuteAudio();
-        else
-            videoroom?.muteAudio();
     }
 
 
@@ -348,8 +384,8 @@ const Room = () => {
                     setTimeout(function () {
                         janus.reconnect({
                             success: function () {
-                                console.log("Session successfully reclaimed:", janus.getSessionId());
-                                console.log("Reconnected!");
+                                // console.log("Session successfully reclaimed:", janus.getSessionId());
+                                // console.log("Reconnected!");
                             },
                             error: function (err) {
                                 console.error("Failed to reconnect:", err);
@@ -368,7 +404,7 @@ const Room = () => {
                         }
                     } else if (event) {
                         if (event === "attached") {
-                            console.log("got attached")
+                            // console.log("got attached")
                             subscribeStarted = true
                         } else if (event === "event") {
                             // Check if we got an event on a simulcast-related event from this publisher
@@ -380,7 +416,7 @@ const Room = () => {
                     }
                     if (msg?.streams) {
                         // Update map of subscriptions by mid
-                        console.log("update subscriptions", msg)
+                        // console.log("update subscriptions", msg)
                         msg?.streams.forEach(stream => {
                             subStreams[stream.mid] = stream;
                         })
@@ -442,8 +478,8 @@ const Room = () => {
                 setTimeout(function () {
                     janus.reconnect({
                         success: function () {
-                            console.log("Session successfully reclaimed:", janus.getSessionId());
-                            console.log("Reconnected!");
+                            // console.log("Session successfully reclaimed:", janus.getSessionId());
+                            // console.log("Reconnected!");
                         },
                         error: function (err) {
                             console.error("Failed to reconnect:", err);
@@ -567,16 +603,16 @@ const Room = () => {
             </div>
             <div
                 className={"grid grid-cols-2 lg:grid-cols-1 gap-2 lg:absolute lg:right-0 lg:top-0 w-full lg:w-1/5 h-full lg:h-auto max-h-full overflow-y-auto p-4 lg:p-2 lg:bg-transparent"}>
-                {mapComponents.map(item => item.component)}
+                {Object.keys(mapPeers).map(key => mapPeers[key][1])}
             </div>
             <div
                 className={"fixed bottom-0 mt-auto flex justify-center align-middle flex-row gap-3 w-full bg-zinc-800 py-2 self-end justify-self-end"}>
-                <Button ref={btnVideo} name={"video"} onClick={unPublishOwnFeed}
-                        variant={"success"}
+                <Button ref={btnVideo} name={"video"}
+                        variant={constraints.video ? "success" : "destructive"}
                         className={"rounded-full text-xl w-[50px] h-[50px]"}><AiFillVideoCamera/>
                 </Button>
-                <Button ref={btnAudio} name={"audio"} onClick={handleToggleMute}
-                        variant={"success"}
+                <Button ref={btnAudio} name={"audio"}
+                        variant={constraints.audio ? "success" : "destructive"}
                         className={"rounded-full text-xl w-[50px] h-[50px]"}><AiFillAudio/>
                 </Button>
             </div>

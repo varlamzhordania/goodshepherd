@@ -41,16 +41,16 @@ const Flights = () => {
                         }
                         {flightsQuery?.data?.map(flight =>
                             (
-                                <TableRow key={flight.id}>
-                                    <TableCell className={"break-keep"}>{flight.airline}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.airlinePhone}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.airlineEmail}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.dcity.join("-")}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.acity.join("-")}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.ddate}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.adate}</TableCell>
-                                    <TableCell className={"break-keep"}>#{flight.flightCode}</TableCell>
-                                    <TableCell className={"break-keep"}>{flight.ticketPnr}</TableCell>
+                                <TableRow key={flight?.id}>
+                                    <TableCell className={"break-keep"}>{flight?.airline}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.airlinePhone}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.airlineEmail}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.dcity?.join("-")}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.acity?.join("-")}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.ddate}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.adate}</TableCell>
+                                    <TableCell className={"break-keep"}>#{flight?.flightCode}</TableCell>
+                                    <TableCell className={"break-keep"}>{flight?.ticketPnr}</TableCell>
                                 </TableRow>
                             ))
                         }

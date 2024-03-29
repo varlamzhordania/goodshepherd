@@ -84,22 +84,22 @@ const Sights = () => {
                         <div className={"w-full flex justify-center items-center"}><Spinner/></div>
                     }
                     {
-                        sightsQuery?.data?.map((item, index) =>
-                            <li key={item.id} className={"grid-rows-2"}>
+                        !sightsQuery.isLoading && sightsQuery?.data.length > 0 && sightsQuery?.data?.map((item, index) =>
+                            <li key={item?.id} className={"grid-rows-2"}>
                                 {index !== 0 && <hr/>}
 
                                 <div className="timeline-start min-w-40">
 
                                 </div>
                                 <div className="timeline-middle cursor-pointer" onClick={() => handleClick(item)}
-                                     key={item.id}>
+                                     key={item?.id}>
                                     <div
                                         className={"bg-primary text-white rounded-lg w-12 h-12 flex flex-col text-center item-center justify-center "}>
-                                        <span className={"font-bold text-md"}>{item.cont[0].day}</span>
+                                        <span className={"font-bold text-md"}>{item?.cont && item?.cont[0]?.day}</span>
                                         <span className={"text-xs"}>Day</span>
                                     </div>
                                 </div>
-                                {index !== sightsQuery.data.length - 1 && <hr/>}
+                                {index !== sightsQuery?.data?.length - 1 && <hr/>}
                             </li>
                         )
                     }
