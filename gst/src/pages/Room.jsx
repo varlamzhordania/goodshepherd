@@ -346,9 +346,10 @@ const Room = () => {
             callback: function () {
                 // Create session
                 janus = new Janus({
-                    server: 'ws://49.13.124.44:8188',
+                    server: 'wss://voice.goodshepherd.tours:8989',
                     iceServers: [{url: "turn:49.13.124.44:3478", username: "gst", credential: "gst"}],
                     success: function () {
+                        console.log("connected to janus")
                         // Session created, now attaching to VideoRoom plugin
                         attachToVideoRoomPlugin();
                     },

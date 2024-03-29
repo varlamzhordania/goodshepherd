@@ -2,7 +2,7 @@
 export const API_BASE_URL = 'https://go.goodshepherd.tours/'
 
 export const IMAGE_UPLOADS = 'https://go.goodshepherd.tours/uploads/'
-export const WS_BASE_URL = 'ws://localhost:8000'
+export const WS_BASE_URL = 'wss://voice.goodshepherd.tours:8989'
 
 // export const rtcConfig = {
 //     iceServers: [
