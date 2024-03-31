@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 import {Button} from "@/components/ui/button.jsx";
 import {AiFillAudio, AiFillVideoCamera} from "react-icons/ai";
@@ -6,6 +6,7 @@ import Peer from "@/components/Peer.jsx";
 import {getUser} from "@/lib/utils.js";
 import Janus from "janus-gateway";
 import adapter from "webrtc-adapter"
+import {BsDoorOpenFill} from "react-icons/bs";
 
 
 let mapPeers = {}
@@ -19,6 +20,7 @@ const Room = () => {
     const btnAudio = useRef();
     const btnVideo = useRef();
     const userData = getUser();
+    const navigator = useNavigate()
     let {tour_id} = useParams();
     let subscribeStarted = false;
     const bitrate = 1024 * 512;
@@ -338,6 +340,12 @@ const Room = () => {
     }
 
 
+    const handleLeave = () => {
+        janus?.destroy()
+        navigator("/")
+    }
+
+
     const initializeJanus = () => {
         Janus.init({
             debug: false,
@@ -593,6 +601,9 @@ const Room = () => {
         initializeJanus()
         // initializeMedia()
         // setupWebSocket(tour_id)
+        return () => {
+            janus.destroy()
+        }
     }, [tour_id])
 
 
@@ -615,6 +626,10 @@ const Room = () => {
                 <Button ref={btnAudio} name={"audio"}
                         variant={constraints.audio ? "success" : "destructive"}
                         className={"rounded-full text-xl w-[50px] h-[50px]"}><AiFillAudio/>
+                </Button>
+                <Button name={"audio"}
+                        variant={"outline"} onClick={handleLeave}
+                        className={"rounded-full text-xl w-[50px] h-[50px]"}><BsDoorOpenFill/>
                 </Button>
             </div>
         </div>
