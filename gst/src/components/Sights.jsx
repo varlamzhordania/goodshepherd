@@ -33,7 +33,7 @@ const Sights = () => {
                         {Object.keys(cont?.sight).map((key, index) => {
                                 if (key !== "description" && key !== "name")
                                     return cont.sight[key] ? <CarouselItem key={index}
-                                                                           className="pl-1 md:basis-1/2 lg:basis-1/3 xl:basis-1/3">
+                                                                           className="pl-1 md:basis-1/2 lg:basis-1/3 xl:basis-1/2">
                                         <Card>
                                             <CardContent className={"relative p-0 rounded-lg overflow-hidden"}>
                                                 <AspectRatio ratio={16 / 9}>
@@ -85,7 +85,7 @@ const Sights = () => {
                         <div className={"w-full flex justify-center items-center"}><Spinner/></div>
                     }
                     {
-                        !sightsQuery.isLoading && sightsQuery?.data.length > 0 && sightsQuery?.data?.map((item, index) =>
+                        !sightsQuery.isLoading && sightsQuery?.data?.length > 0 && sightsQuery?.data?.map((item, index) =>
                             <li key={item?.id} className={"grid-rows-2"}>
                                 {index !== 0 && <hr/>}
 

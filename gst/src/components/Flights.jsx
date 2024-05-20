@@ -43,18 +43,19 @@ const Flights = () => {
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableHead>Phone</TableHead>
-                                                    <TableCell
-                                                        className={"text-nowrap"}>{flight?.airlinePhone}</TableCell>
+                                                    <TableCell className={"text-nowrap"}>{flight?.airlinePhone}</TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableHead>Departure City</TableHead>
-                                                    <TableCell
-                                                        className={"text-nowrap"}>{flight?.dcity?.join("-")}</TableCell>
+                                                    <TableHead>Departure Airport</TableHead>
+                                                    <TableCell>
+                                                        <p className={"w-auto"}> {flight?.departure_airport}</p>
+                                                    </TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableHead>Arrive City</TableHead>
-                                                    <TableCell
-                                                        className={"text-nowrap"}>{flight?.acity?.join("-")}</TableCell>
+                                                    <TableHead>Arrive Airport</TableHead>
+                                                    <TableCell>
+                                                        <p className={"w-auto"}>{flight?.arrival_airport}</p>
+                                                    </TableCell>
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableHead>Departure date</TableHead>
@@ -87,10 +88,10 @@ const Flights = () => {
                             <TableHeader className={"bg-secondary"}>
                                 <TableRow>
                                     <TableHead>Airline</TableHead>
-                                    <TableHead>Airline</TableHead>
                                     <TableHead>Phone</TableHead>
-                                    <TableHead>Departure City</TableHead>
-                                    <TableHead>Arrive City</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Departure Airport</TableHead>
+                                    <TableHead>Arrive Airport</TableHead>
                                     <TableHead>Departure date</TableHead>
                                     <TableHead>Arrive date</TableHead>
                                     <TableHead>Flight code</TableHead>
@@ -108,8 +109,8 @@ const Flights = () => {
                                             <TableCell className={"text-nowrap"}>{flight?.airline}</TableCell>
                                             <TableCell className={"text-nowrap"}>{flight?.airlinePhone}</TableCell>
                                             <TableCell className={"text-nowrap"}>{flight?.airlineEmail}</TableCell>
-                                            <TableCell className={"text-nowrap"}>{flight?.dcity?.join("-")}</TableCell>
-                                            <TableCell className={"text-nowrap"}>{flight?.acity?.join("-")}</TableCell>
+                                            <TableCell className={"text-nowrap"}>{flight?.departure_airport}</TableCell>
+                                            <TableCell className={"text-nowrap"}>{flight?.arrival_airport}</TableCell>
                                             <TableCell className={"text-nowrap"}>{flight?.ddate}</TableCell>
                                             <TableCell className={"text-nowrap"}>{flight?.adate}</TableCell>
                                             <TableCell className={"text-nowrap"}>#{flight?.flightCode}</TableCell>
